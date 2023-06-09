@@ -1,0 +1,43 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - prod.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:1.13
+    ports:
+      - "443:443"
+    env_file:
+      - prod.env
+    volumes:
+      - ./nginx_conf:/etc/nginx/conf.d
+      - static:/usr/src/app/static
+      - media:/usr/src/app/media
+    command: /bin/sh -c "envsubst '' < /etc/nginx/conf.d/default.conf-prod.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    command: bash -c "python manage.py migrate && python manage.py collectstatic --no-input --clear && gunicorn --workers 3 --bind  0.0.0.0:8000 config.wsgi:application"
+    expose:
+      - "8000"
+    volumes:
+      - ./backend:/usr/src/app
+      - static:/usr/src/app/static
+      - media:/usr/src/app/media
+    env_file:
+      - prod.env
+    depends_on:
+      - db
+
+volumes:
+  static:
+  media:
+  pgdata:

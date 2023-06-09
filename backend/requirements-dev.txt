@@ -1,0 +1,9 @@
+-r requirements.txt
+
+isort==5.12.0
+flake8==6.0.0
+flake8-quotes==3.3.2
+flake8-print==5.0.0
+flake8-commas==2.1.0
+flake8-docstrings==1.7.0
+mypy==1.0

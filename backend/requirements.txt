@@ -1,0 +1,10 @@
+Django==4.1.5
+djangorestframework==3.14.0
+gunicorn==20.1.0
+psycopg2-binary==2.9.5
+
+drf-spectacular==0.25.1
+django-environ==0.9.0
+
+django-stubs[compatible-mypy]==1.15.0
+django-stubs-ext==0.7.0
