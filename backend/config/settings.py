@@ -170,3 +170,17 @@ REST_FRAMEWORK = {
 
 # django-common-ui
 SITE_NAME = 'AWS同好会(仮)'
+
+# ヘッダー項目
+NAV_MENU_ITEMS = [
+    {
+        'label': '問題を解く',
+        'children': [
+            {
+                'label': '問題一覧',
+                'view_name': 'question_list',
+                'icon': 'edit_document',
+            },
+        ],
+    },
+]
