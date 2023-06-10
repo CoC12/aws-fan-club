@@ -1,7 +1,9 @@
 from django.db import models
 
+from apps.common.models import TimestampUserMixin
 
-class Choice(models.Model):
+
+class Choice(TimestampUserMixin):
     """
     選択肢モデル
     """

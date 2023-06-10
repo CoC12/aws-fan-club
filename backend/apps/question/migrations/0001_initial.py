@@ -16,6 +16,10 @@ class Migration(migrations.Migration):
             name='Question',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
+                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
+                ('created_by', models.CharField(max_length=256, verbose_name='作成者')),
+                ('updated_by', models.CharField(max_length=256, verbose_name='更新者')),
                 ('text', models.TextField(verbose_name='問題文')),
                 ('explanation', models.TextField(blank=True, verbose_name='解説')),
             ],
@@ -28,6 +32,10 @@ class Migration(migrations.Migration):
             name='Choice',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
+                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
+                ('created_by', models.CharField(max_length=256, verbose_name='作成者')),
+                ('updated_by', models.CharField(max_length=256, verbose_name='更新者')),
                 ('number', models.PositiveSmallIntegerField(verbose_name='選択肢番号')),
                 ('choice_text', models.TextField(verbose_name='選択肢文章')),
                 ('is_answer', models.BooleanField(default=False, verbose_name='正解か')),

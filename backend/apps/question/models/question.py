@@ -1,9 +1,10 @@
 from django.db import models
 
+from apps.common.models import TimestampUserMixin
 from apps.question.models import Choice
 
 
-class Question(models.Model):
+class Question(TimestampUserMixin):
     """
     問題モデル
     """
