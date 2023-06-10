@@ -1,0 +1,3 @@
+[submodule "backend/apps/common"]
+	path = backend/apps/common
+	url = https://github.com/CoC12/django-common-ui.git

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.api',
     'apps.user',
     'apps.question',
+    'apps.common.apps.CommonConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -166,3 +167,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': [],
 }
+
+# django-common-ui
+SITE_NAME = 'AWS同好会(仮)'
