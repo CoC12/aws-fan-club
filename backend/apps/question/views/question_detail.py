@@ -43,21 +43,63 @@ class QuestionDetail(BaseView):
         Returns:
             dict[str, typing.Any]: コンテキストデータ
         """
-        pk = self.kwargs['pk']
-        question = Question.objects.prefetch_related('choices').get(pk=pk)
+        previous_question, current_question, next_question = self._get_questions()
+
+        if current_question is None:
+            raise Question.DoesNotExist
 
         context = super().get_context_data(**kwargs)
         context.update({
-            'card_title': f'問題: {pk}',
-            'question': question,
-            'button': Button(
+            'card_title': f'問題: {current_question.pk}',
+            'question': current_question,
+            'confirm_button': Button(
                 label='決定',
                 add_class=[
                     'js-question-card__confirm-button',
                 ],
             ),
+            'previous_page_button': Button(
+                label='前の問題',
+                link=reverse('question_detail', kwargs={'pk': previous_question.pk}) if previous_question else '',
+                disabled=previous_question is None,
+            ),
+            'next_page_button': Button(
+                label='次の問題',
+                link=reverse('question_detail', kwargs={'pk': next_question.pk}) if next_question else '',
+                disabled=next_question is None,
+            ),
         })
         return context
+
+    def _get_questions(self) -> tuple[Question | None, Question | None, Question | None]:
+        """
+        現在、直前、直後のページの問題を取得する。
+
+        Returns:
+            tuple[Question | None, Question | None, Question | None]: 現在、直前、直後のページの問題
+        """
+        pk = self.kwargs['pk']
+
+        base_qs = Question.objects.prefetch_related('choices')
+        previous_qs = base_qs.filter(pk__lte=pk).order_by('-pk')[:2]  # 直前の pk の QuerySet（該当の pk を含む）
+        next_ps = base_qs.filter(pk__gt=pk).order_by('pk')[:1]  # 直後の pk の QuerySet
+        question_qs = previous_qs.union(next_ps)
+
+        previous_question = None
+        current_question = None
+        next_question = None
+
+        for question in question_qs:
+            if question.pk == pk:
+                current_question = question
+                continue
+            if question.pk < pk:
+                previous_question = question
+                continue
+            if question.pk > pk:
+                next_question = question
+
+        return previous_question, current_question, next_question
 
     def _get_breadcrumb_items(self) -> list[BreadcrumbItem]:
         """

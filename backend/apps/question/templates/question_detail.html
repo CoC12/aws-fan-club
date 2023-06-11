@@ -7,4 +7,12 @@
 
 {% block content %}
     {% include 'projects/question_card.html' with card_title=card_title question=question %}
+    <div class="d-flex">
+        <div class="mx-4 my-3">
+            {% include 'components/button.html' with button=previous_page_button %}
+        </div>
+        <div class="mx-4 my-3 ms-auto">
+            {% include 'components/button.html' with button=next_page_button %}
+        </div>
+    </div>
 {% endblock %}
