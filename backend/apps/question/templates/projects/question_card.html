@@ -1,0 +1,143 @@
+{% extends 'components/card_base.html' %}
+{% comment %}
+問題のカード表示
+
+Template Path:
+    projects/question_card.html
+
+Args:
+    card_title (str): カードのタイトル
+    question (Question): Question モデル
+{% endcomment %}
+
+{% block card_header %}
+    <div class="d-flex">
+        <span class="ms-auto">
+            作成者: {{ question.created_by }}
+        </span>
+    </div>
+{% endblock %}
+
+{% block card_body %}
+    <div class="p-4">
+        <div>
+            {{ question.text }}
+        </div>
+        <div>
+            {% for choice in question.choices.all %}
+                <div class="m-3 form-check p-question-card__choice-container">
+                    <input
+                        type="checkbox"
+                        id="id-question-card__choice-check-{{ choice.pk }}"
+                        class="form-check-input p-question-card__choice-check js-question-card__choice-check"
+                        data-is-answer="{{ choice.is_answer }}"
+                    >
+                    <label for="id-question-card__choice-check-{{ choice.pk }}">
+                        {{ choice.number }}. {{ choice.choice_text }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="d-flex">
+            <div class="ms-auto">
+                {% include 'components/button.html' with button=button %}
+            </div>
+        </div>
+        <div class="d-none mt-3 js-question-card__explanation">
+            <label class="fw-bold">
+                正答
+            </label>
+            <div>
+                {% for choice in question.choices.all %}
+                    {% if choice.is_answer %}
+                        {{ choice.number }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <label class="fw-bold mt-3">
+                解説
+            </label>
+            <div>
+                {{ question.explanation }}
+            </div>
+        </div>
+        <div class="d-none correct p-question-card__result-effect js-question-card__result-effect"></div>
+    </div>
+
+    <style>
+        .p-question-card__choice-container input:focus {
+            border-color: #0073bb;
+            box-shadow: none;
+        }
+        .p-question-card__choice-check:checked {
+            background-color: #0073bb;
+            border-color: #0073bb;
+        }
+        .p-question-card__result-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            opacity: 1;
+            transition: opacity .5s linear;
+            font-weight: bold;
+            text-shadow: -3px -3px 0 #e6e6e6, 3px -3px 0 #e6e6e6, -3px 3px 0 #e6e6e6, 3px 3px 0 #e6e6e6;
+        }
+        .p-question-card__result-effect.fade {
+            opacity: 0;
+        }
+        .p-question-card__result-effect.correct {
+            color: #f1556c;
+        }
+        .p-question-card__result-effect.wrong {
+            color: #6658dd;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmButton = document.querySelector('.js-question-card__confirm-button');
+            const questionExplanation = document.querySelector('.js-question-card__explanation');
+
+            confirmButton.addEventListener('click', () => {
+                questionExplanation.classList.remove('d-none');
+                confirmButton.classList.add('d-none');
+                displayResultEffect();
+            });
+        });
+
+        /**
+         * 結果のエフェクトを表示する。
+         */
+        const displayResultEffect = () => {
+            const isCorrect = isCorrectChoiceSelected();
+            const resultEffect = document.querySelector('.js-question-card__result-effect');
+            resultEffect.innerText = isCorrect ? '正解' : '不正解';
+            resultEffect.classList.add(isCorrect ? 'correct' : 'wrong');
+            resultEffect.classList.remove('d-none', 'fade');
+
+            resultEffect.addEventListener('transitionend', () => {
+                resultEffect.classList.add('d-none');
+            });
+            setTimeout(() => {
+                resultEffect.classList.add('fade');
+            }, 500);
+        };
+
+        /**
+         * 正解の選択肢が選択されているかどうか、を返す。
+         * @returns {boolean} 正解の選択肢が選択されているかどうか
+         */
+        const isCorrectChoiceSelected = () => {
+            const choiceCheckboxNodeList = document.querySelectorAll('.js-question-card__choice-check');
+            for (const choiceCheckboxNode of Array.from(choiceCheckboxNodeList)) {
+                const isAnswer = choiceCheckboxNode.dataset.isAnswer === 'True';
+                if (choiceCheckboxNode.checked !== isAnswer) {
+                    return false;
+                }
+            }
+            return true;
+        };
+    </script>
+{% endblock %}

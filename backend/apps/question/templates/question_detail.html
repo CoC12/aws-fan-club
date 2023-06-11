@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% load helpers %}
+
+{% block title %}
+    {% site_title '問題詳細' %}
+{% endblock %}
+
+{% block content %}
+    {% include 'projects/question_card.html' with card_title=card_title question=question %}
+{% endblock %}

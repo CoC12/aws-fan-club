@@ -1,6 +1,6 @@
 import typing
 
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 from apps.common.dataclass import Row, Table
 from apps.common.services import PaginationService
@@ -49,6 +49,7 @@ class QuestionList(BaseView):
             list[Row]: テーブル表示用の問題一覧
         """
         question_qs = Question.objects.values(
+            'pk',
             'text',
             'created_by',
             'created_at',
@@ -57,6 +58,7 @@ class QuestionList(BaseView):
 
         question_list = [
             Row(
+                href=reverse('question_detail', kwargs={'pk': question['pk']}),
                 data={
                     '問題文': question['text'],
                     '作成者': question['created_by'],
