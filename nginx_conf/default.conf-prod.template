@@ -6,12 +6,12 @@ server {
     listen 443;
     client_max_body_size 100M;
     charset utf-8;
-    server_name example.com;
+    server_name aws-fan-club.dev;
 
     ssl on;
-    ssl_certificate /etc/nginx/conf.d/server-20230205.crt;
-    ssl_certificate_key /etc/nginx/conf.d/server-20230205.key;
-    ssl_password_file /etc/nginx/conf.d/example.com.private.passphrase;
+    ssl_certificate /etc/nginx/conf.d/server-20230611.crt;
+    ssl_certificate_key /etc/nginx/conf.d/server-20230611.key;
+    ssl_password_file /etc/nginx/conf.d/aws-fan-club.dev.private.passphrase;
 
     location /static {
         alias /usr/src/app/static;
