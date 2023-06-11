@@ -144,7 +144,7 @@ LOGGING = {
     'formatters': {
         'standard': {
             'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
-            'datefmt': '%d/%b/%Y %H:%M:%S',
+            'datefmt': '%Y-%m-%dT%H:%M:%S%z',
         },
     },
     'handlers': {
@@ -154,6 +154,11 @@ LOGGING = {
         },
     },
     'loggers': {
+        'apps.question.management.commands': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'django': {
             'handlers': ['console'],
             'level': 'ERROR',

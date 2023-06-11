@@ -1,4 +1,5 @@
 import json
+import logging
 import typing
 
 from django.core.management.base import BaseCommand
@@ -6,6 +7,8 @@ from django.db import transaction
 from openai import ChatCompletion
 
 from apps.question.models import Choice, Question
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -17,6 +20,8 @@ class Command(BaseCommand):
         """
         バッチメイン処理
         """
+        logger.info('Starting batch process: create_question')
+
         context = self._get_context()
         prompt = self._get_prompt()
 
@@ -28,10 +33,12 @@ class Command(BaseCommand):
             ],
         )
         response_content = response['choices'][0]['message']['content']
+        logger.info(f'ChatGPT response: {response_content}')
 
         self._save_question(
             question_data=json.loads(response_content),
         )
+        logger.info('Finished batch process: create_question')
 
     def _get_context(self) -> list['OpenAiApiType.MessageDict']:
         """
@@ -67,9 +74,12 @@ class Command(BaseCommand):
         Args:
             question_data (QuestionDataType.QuestionDict): 保存する問題データ
         """
+        created_by = 'ChatGPT'
+
         question = Question.objects.create(
             text=question_data['question'],
             explanation=question_data['explanation'],
+            created_by=created_by,
         )
         choice_list = [
             Choice(
@@ -77,6 +87,7 @@ class Command(BaseCommand):
                 number=i,
                 choice_text=choice['text'],
                 is_answer=choice['isCorrectAnswer'],
+                created_by=created_by,
             ) for i, choice in enumerate(question_data['choices'], start=1)
         ]
         Choice.objects.bulk_create(choice_list)
