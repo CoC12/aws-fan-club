@@ -1,6 +1,7 @@
-from django.http import JsonResponse
 from django.urls import path
 
+from .views import CreateQuestion
+
 urlpatterns = [
-    path('sample/', lambda _: JsonResponse({'test': 'test'}), name='sample'),
+    path('questions/create/', CreateQuestion.as_view(), name='create_question'),
 ]
