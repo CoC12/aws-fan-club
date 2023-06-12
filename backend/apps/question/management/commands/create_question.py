@@ -11,12 +11,46 @@ from apps.question.models import Choice, Question
 logger = logging.getLogger(__name__)
 
 
+class InvalidResponseFormatException(Exception):
+    """
+    API レスポンスが不正な場合に送出される例外
+    """
+
+    def __init__(self, response: str) -> None:
+        """
+        __init__ メソッド
+
+        Args:
+            response (str): API レスポンス文字列
+        """
+        self.response = response
+
+    def __str__(self) -> str:
+        """
+        __str__ メソッド
+
+        Returns:
+            str: 文字列表現
+        """
+        return f'Invalid response format: {self.response}'
+
+
 class Command(BaseCommand):
     """
     問題作成バッチ
     """
 
     def handle(self, *args: typing.Any, **options: typing.Any) -> None:
+        """
+        バッチメイン処理
+        """
+        try:
+            self._execute()
+        except Exception as e:
+            # TODO エラー通知
+            raise e
+
+    def _execute(self) -> None:
         """
         バッチメイン処理
         """
@@ -35,8 +69,13 @@ class Command(BaseCommand):
         response_content = response['choices'][0]['message']['content']
         logger.info(f'ChatGPT response: {response_content}')
 
+        try:
+            response_json = json.loads(response_content)
+        except Exception as e:
+            raise InvalidResponseFormatException(response=response_content) from e
+
         self._save_question(
-            question_data=json.loads(response_content),
+            question_data=response_json,
         )
         logger.info('Finished batch process: create_question')
 
@@ -49,7 +88,7 @@ class Command(BaseCommand):
         context: list['OpenAiApiType.MessageDict'] = [
             {
                 'role': 'system',
-                'content': '次のJSON形式のみを出力してください。\n{"$schema":"http://json-schema.org/draft-07/schema#","title":"Quiz Schema","type":"object","properties":{"question":{"type":"string"},"choices":{"type":"array","items":{"type":"object","properties":{"text":{"type":"string"},"isCorrectAnswer":{"type":"boolean"}},"required":["text","isCorrectAnswer"]}},"explanation":{"type":"string"}},"required":["question","choices","explanation"]}',  # noqa:E501
+                'content': '次のJSONのみ出力してください。\n{"$schema":"http://json-schema.org/draft-07/schema#","title":"Quiz Schema","type":"object","properties":{"question":{"type":"string"},"choices":{"type":"array","items":{"type":"object","properties":{"text":{"type":"string"},"isCorrectAnswer":{"type":"boolean"}},"required":["text","isCorrectAnswer"]}},"explanation":{"type":"string"}},"required":["question","choices","explanation"]}',  # noqa:E501
             },
         ]
         return context
