@@ -1,4 +1,3 @@
-import json
 import logging
 import typing
 
@@ -7,6 +6,7 @@ from django.db import transaction
 from openai import ChatCompletion
 
 from apps.question.models import Choice, Question
+from services.json_service import extract_json
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class Command(BaseCommand):
         logger.info(f'ChatGPT response: {response_content}')
 
         try:
-            response_json = json.loads(response_content)
+            response_json: QuestionDataType.QuestionDict = extract_json(response_content)
         except Exception as e:
             raise InvalidResponseFormatException(response=response_content) from e
 
@@ -88,7 +88,7 @@ class Command(BaseCommand):
         context: list['OpenAiApiType.MessageDict'] = [
             {
                 'role': 'system',
-                'content': '次のJSONのみ出力してください。\n{"$schema":"http://json-schema.org/draft-07/schema#","title":"Quiz Schema","type":"object","properties":{"question":{"type":"string"},"choices":{"type":"array","items":{"type":"object","properties":{"text":{"type":"string"},"isCorrectAnswer":{"type":"boolean"}},"required":["text","isCorrectAnswer"]}},"explanation":{"type":"string"}},"required":["question","choices","explanation"]}',  # noqa:E501
+                'content': '次のJSON形式で出力してください。\n{"question":"string","choices":[{"text":"string","isCorrectAnswer":"bool"}],"explanation":"string"}',  # noqa:E501
             },
         ]
         return context
