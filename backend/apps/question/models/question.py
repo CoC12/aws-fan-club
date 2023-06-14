@@ -1,7 +1,8 @@
 from django.db import models
 
 from apps.common.models import TimestampUserMixin
-from apps.question.models import Choice
+from apps.question.models.choice import Choice
+from apps.question.models.comment import Comment
 
 
 class Question(TimestampUserMixin):
@@ -33,3 +34,12 @@ class Question(TimestampUserMixin):
             models.QuerySet[Choice]: 選択肢のQuerySet
         """
         return self.choices.order_by('number')
+
+    def get_comments(self) -> models.QuerySet[Comment]:
+        """
+        問題のコメントを取得する。
+
+        Returns:
+            models.QuerySet[Comment]: コメントのQuerySet
+        """
+        return self.comments.order_by('-created_at')
