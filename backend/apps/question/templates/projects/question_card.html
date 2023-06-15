@@ -19,10 +19,13 @@ Args:
 {% endblock %}
 
 {% block card_body %}
-    <div class="p-4">
+    <div class="p-4 js-question-card__container" data-question-id="{{ question.pk }}">
+        {% csrf_token %}
+        {% comment %} 問題文 {% endcomment %}
         <div>
             {{ question.text }}
         </div>
+        {% comment %} 選択肢 {% endcomment %}
         <div>
             {% for choice in question.choices.all %}
                 <div class="m-3 form-check p-question-card__choice-container">
@@ -38,11 +41,13 @@ Args:
                 </div>
             {% endfor %}
         </div>
+        {% comment %} 「決定」ボタン {% endcomment %}
         <div class="d-flex">
             <div class="ms-auto">
                 {% include 'components/button.html' with button=confirm_button %}
             </div>
         </div>
+        {% comment %} 解説 {% endcomment %}
         <div class="d-none mt-3 js-question-card__explanation">
             <label class="fw-bold">
                 正答
@@ -61,7 +66,37 @@ Args:
                 {{ question.explanation }}
             </div>
         </div>
+        {% comment %} AI コメント {% endcomment %}
+        <div class="d-none mt-4 js-question-card__ai-comment-container">
+            <label class="fw-bold mt-3">
+                この解説、本当？
+            </label>
+            <div class="js-question-card__ai-comment">
+                {% if question.get_ai_comment %}
+                    {{ question.get_ai_comment.comment }}
+                {% else %}
+                    <div class="m-2 text-center">
+                        表示する「この解説、本当？」がありません
+                    </div>
+                    <div class="d-flex">
+                        <div class="m-auto">
+                            {% include 'components/button.html' with button=ai_comment_button %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% comment %} 結果エフェクト {% endcomment %}
         <div class="d-none correct p-question-card__result-effect js-question-card__result-effect"></div>
+
+        {% comment %} テンプレート - ローダー {% endcomment %}
+        <template class="js-question-card__ai-comment-loader-template">
+            <div class="d-flex">
+                <div class="m-auto">
+                    <div class="spinner-border text-secondary" role="status"></div>
+                </div>
+            </div>
+        </template>
     </div>
 
     <style>
@@ -97,14 +132,47 @@ Args:
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const questionContainer = document.querySelector('.js-question-card__container');
+            // 解答ボタン
             const confirmButton = document.querySelector('.js-question-card__confirm-button');
-            const questionExplanation = document.querySelector('.js-question-card__explanation');
-
             confirmButton.addEventListener('click', () => {
+                const questionExplanation = document.querySelector('.js-question-card__explanation');
+                const aiCommentContainer = document.querySelector('.js-question-card__ai-comment-container');
                 questionExplanation.classList.remove('d-none');
+                aiCommentContainer.classList.remove('d-none');
                 confirmButton.classList.add('d-none');
                 displayResultEffect();
             });
+
+            // AIコメント生成ボタン
+            const aiCommentButton = document.querySelector('.js-question-card__ai-comment-button');
+            if (aiCommentButton) {
+                aiCommentButton.addEventListener('click', () => {
+                    // ローダーで置き換え
+                    const aiCommentElement = document.querySelector('.js-question-card__ai-comment');
+                    const aiCommentLoaderTemplate = document.querySelector('.js-question-card__ai-comment-loader-template');
+                    const aiCommentLoader = aiCommentLoaderTemplate.content.cloneNode(true).firstElementChild;
+                    aiCommentElement.innerHTML = '';
+                    aiCommentElement.appendChild(aiCommentLoader);
+
+                    // AIコメント生成リクエスト
+                    const questionId = questionContainer.dataset.questionId;
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', `/api/questions/${questionId}/comments/ai/create/`, true);
+                    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+                    xhr.onload = () => {
+                        let aiComment = '';
+                        if (xhr.status === 200) {
+                            aiComment = JSON.parse(xhr.responseText).comment;
+                        } else {
+                            aiComment = 'エラーが発生しました';
+                        }
+                        aiCommentElement.innerText = aiComment;
+                    };
+                    xhr.send();
+                });
+            }
         });
 
         /**

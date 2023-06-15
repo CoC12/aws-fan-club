@@ -58,6 +58,13 @@ class QuestionDetail(BaseView):
                     'js-question-card__confirm-button',
                 ],
             ),
+            'ai_comment_button': Button(
+                label='生成',
+                secondary=True,
+                add_class=[
+                    'js-question-card__ai-comment-button border border-secondary',
+                ],
+            ),
             'previous_page_button': Button(
                 label='前の問題',
                 link=reverse('question_detail', kwargs={'pk': previous_question.pk}) if previous_question else '',

@@ -43,3 +43,14 @@ class Question(TimestampUserMixin):
             models.QuerySet[Comment]: コメントのQuerySet
         """
         return self.comments.order_by('-created_at')
+
+    def get_ai_comment(self) -> Comment | None:
+        """
+        問題のAIコメントを取得する。
+
+        Returns:
+            Comment | None: Comment オブジェクト
+        """
+        comment_qs = self.get_comments()
+        ai_comment = comment_qs.filter(comment_type=Comment.CommentType.AI_COMMENT).first()
+        return ai_comment
