@@ -15,6 +15,7 @@ from pathlib import Path
 
 import django_stubs_ext
 import environ
+from django.urls import reverse_lazy
 
 env = environ.Env()
 
@@ -137,6 +138,10 @@ AUTH_USER_MODEL = 'user.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGIN_URL = reverse_lazy('user:login')
+LOGIN_REDIRECT_URL = 'top_page'
+LOGOUT_REDIRECT_URL = 'top_page'
+
 # LOG
 LOGGING = {
     'version': 1,
@@ -177,15 +182,19 @@ REST_FRAMEWORK = {
 SITE_NAME = 'AWS同好会(仮)'
 
 # ヘッダー項目
-NAV_MENU_ITEMS = [
-    {
-        'label': '問題を解く',
-        'children': [
-            {
-                'label': '問題一覧',
-                'view_name': 'question_list',
-                'icon': 'edit_document',
-            },
-        ],
-    },
-]
+HEADER_CONFIG = {
+    'NAV_MENU_ITEMS': [
+        {
+            'label': '問題を解く',
+            'children': [
+                {
+                    'label': '問題一覧',
+                    'view_name': 'question_list',
+                    'icon': 'edit_document',
+                },
+            ],
+        },
+    ],
+    'SHOW_USER_MENU': True,
+}
+MYPAGE_VIEW_NAME = None
