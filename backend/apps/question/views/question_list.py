@@ -35,7 +35,8 @@ class QuestionList(BaseView):
             'question_list_table': Table(
                 page_obj=page_obj,
                 page_range=page_range,
-                headers=['問題文', '作成者', '作成日時', '最終更新日時'],
+                headers=['ID', '問題文', '作成者', '作成日時', '最終更新日時'],
+                html_safe_headers=['問題文'],
                 empty_text='表示するデータがありません。',
             ),
         })
@@ -48,26 +49,35 @@ class QuestionList(BaseView):
         Returns:
             list[Row]: テーブル表示用の問題一覧
         """
-        question_qs = Question.objects.values(
-            'pk',
-            'text',
-            'created_by',
-            'created_at',
-            'updated_at',
-        ).order_by('-created_at')
-
+        question_qs = Question.objects.order_by('-created_at')
         question_list = [
             Row(
-                href=reverse('question_detail', kwargs={'pk': question['pk']}),
+                href=reverse('question_detail', kwargs={'pk': question.pk}),
                 data={
-                    '問題文': question['text'],
-                    '作成者': question['created_by'],
-                    '作成日時': to_human_readable_datetime(question['created_at']),
-                    '最終更新日時': to_human_readable_datetime(question['updated_at']),
+                    'ID': str(question.pk),
+                    '問題文': self._build_question_text_html(question),
+                    '作成者': question.created_by,
+                    '作成日時': to_human_readable_datetime(question.created_at),
+                    '最終更新日時': to_human_readable_datetime(question.updated_at),
                 },
             ) for question in question_qs
         ]
         return question_list
+
+    def _build_question_text_html(self, question: Question) -> str:
+        """
+        問題テキストのHTML文字列を取得する。
+
+        Args:
+            question (Question): Question オブジェクト
+
+        Returns:
+            str: 問題テキストのHTML文字列
+        """
+        badge = question.get_badge(self.request.user)
+        if badge is None:
+            return question.text
+        return f'{badge}{question.text}'
 
     def _get_breadcrumb_items(self) -> list[BreadcrumbItem]:
         """

@@ -53,6 +53,7 @@ class QuestionDetail(BaseView):
             'question_card_title': f'問題: {current_question.pk}',
             'question_comment_card_title': 'コメント',
             'question': current_question,
+            'question_badge': current_question.get_badge(self.request.user),
             'confirm_button': Button(
                 label='決定',
                 add_class=[
@@ -63,7 +64,9 @@ class QuestionDetail(BaseView):
                 label='生成',
                 secondary=True,
                 add_class=[
-                    'js-question-card__ai-comment-button border border-secondary',
+                    'js-question-card__ai-comment-button',
+                    'border',
+                    'border-secondary',
                 ],
             ),
             'previous_page_button': Button(

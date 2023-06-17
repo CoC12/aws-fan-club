@@ -1,7 +1,5 @@
 from django.db import models
 
-from apps.question.models import Choice, Question
-
 
 class History(models.Model):
     """
@@ -18,13 +16,14 @@ class History(models.Model):
     user = models.ForeignKey(
         'user.User',  # 循環参照回避のため、文字列で参照
         on_delete=models.CASCADE,
+        related_name='histories',
     )
     question = models.ForeignKey(
-        Question,
+        'question.Question',  # 循環参照回避のため、文字列で参照
         on_delete=models.CASCADE,
     )
     choices = models.ManyToManyField(
-        Choice,
+        'question.Choice',  # 循環参照回避のため、文字列で参照
         verbose_name='解答',
         related_name='choices',
     )

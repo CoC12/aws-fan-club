@@ -1,9 +1,15 @@
+from datetime import timedelta
+
+from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from django.db.models import QuerySet
+from django.utils import timezone
 
+from apps.common.dataclass import Badge
 from apps.common.models import TimestampUserMixin
 from apps.question.models.choice import Choice
 from apps.question.models.comment import Comment
+from apps.user.models import User
 
 
 class Question(TimestampUserMixin):
@@ -44,6 +50,30 @@ class Question(TimestampUserMixin):
             models.QuerySet[Comment]: コメントのQuerySet
         """
         return self.comments.order_by('-created_at')
+
+    def get_badge(self, user: User | AnonymousUser) -> Badge | None:
+        """
+        問題のバッジを取得する。
+
+        Returns:
+            Badge | None: 問題のバッジ
+        """
+        badge_class = [
+            'me-2',
+        ]
+        if timezone.now() - self.created_at < timedelta(days=1):
+            return Badge(
+                label='新着',
+                color='#f1556c',
+                add_class=badge_class,
+            )
+        if user.is_authenticated and not user.get_history(self.pk).exists():
+            return Badge(
+                label='未解答',
+                color='#1abc9c',
+                add_class=badge_class,
+            )
+        return None
 
     def get_ai_comment(self) -> Comment | None:
         """

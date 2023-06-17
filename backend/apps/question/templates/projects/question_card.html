@@ -21,12 +21,18 @@ Args:
 {% block card_body %}
     <div class="p-4 js-question-card__container" data-question-id="{{ question.pk }}">
         {% csrf_token %}
-        {% comment %} 問題文 {% endcomment %}
         <div>
-            {{ question.text }}
-        </div>
-        {% comment %} 選択肢 {% endcomment %}
-        <div>
+            {% comment %} 問題バッジ {% endcomment %}
+            {% if question_badge %}
+                <div>
+                    {{ question_badge }}
+                </div>
+            {% endif %}
+            {% comment %} 問題文 {% endcomment %}
+            <div class="mt-2">
+                {{ question.text }}
+            </div>
+            {% comment %} 選択肢 {% endcomment %}
             <form class="js-question-card__choice-form">
                 {% for choice in question.choices.all %}
                     <div class="m-3 form-check p-question-card__choice-container">
@@ -44,11 +50,11 @@ Args:
                     </div>
                 {% endfor %}
             </form>
-        </div>
-        {% comment %} 「決定」ボタン {% endcomment %}
-        <div class="d-flex js-question-card__confirm-button-container">
-            <div class="ms-auto">
-                {% include 'components/button.html' with button=confirm_button %}
+            {% comment %} 「決定」ボタン {% endcomment %}
+            <div class="d-flex js-question-card__confirm-button-container">
+                <div class="ms-auto">
+                    {% include 'components/button.html' with button=confirm_button %}
+                </div>
             </div>
         </div>
         {% comment %} 解説 {% endcomment %}
