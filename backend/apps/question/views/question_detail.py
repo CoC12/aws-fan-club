@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 
-from apps.common.dataclass import Button
+from apps.common.dataclass import Avatar, Button
 from apps.common.views import BaseView, BreadcrumbItem
 from apps.question.models import Question
 from config.sidebar_config import SidebarConfig
@@ -50,7 +50,8 @@ class QuestionDetail(BaseView):
 
         context = super().get_context_data(**kwargs)
         context.update({
-            'card_title': f'問題: {current_question.pk}',
+            'question_card_title': f'問題: {current_question.pk}',
+            'question_comment_card_title': 'コメント',
             'question': current_question,
             'confirm_button': Button(
                 label='決定',
@@ -74,6 +75,11 @@ class QuestionDetail(BaseView):
                 label='次の問題',
                 link=reverse('question_detail', kwargs={'pk': next_question.pk}) if next_question else '',
                 disabled=next_question is None,
+            ),
+            # TODO ユーザーに紐づいたアイコンにする
+            'avatar': Avatar(
+                static_src='images/user-default.png',
+                alt='user icon',
             ),
         })
         return context

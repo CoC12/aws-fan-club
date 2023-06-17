@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import QuerySet
 
 from apps.common.models import TimestampUserMixin
 from apps.question.models.choice import Choice
@@ -54,3 +55,14 @@ class Question(TimestampUserMixin):
         comment_qs = self.get_comments()
         ai_comment = comment_qs.filter(comment_type=Comment.CommentType.AI_COMMENT).first()
         return ai_comment
+
+    def get_chat_comments(self) -> QuerySet[Comment]:
+        """
+        問題のチャットコメントを取得する。
+
+        Returns:
+            QuerySet[Comment]: コメントのQuerySet
+        """
+        comment_qs = self.get_comments()
+        chat_comments = comment_qs.filter(comment_type=Comment.CommentType.CHAT_COMMENT).order_by('-created_at')
+        return chat_comments

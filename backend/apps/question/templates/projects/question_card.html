@@ -42,14 +42,14 @@ Args:
             {% endfor %}
         </div>
         {% comment %} 「決定」ボタン {% endcomment %}
-        <div class="d-flex">
+        <div class="d-flex js-question-card__confirm-button-container">
             <div class="ms-auto">
                 {% include 'components/button.html' with button=confirm_button %}
             </div>
         </div>
         {% comment %} 解説 {% endcomment %}
-        <div class="d-none mt-3 js-question-card__explanation">
-            <label class="fw-bold">
+        <div class="d-none mt-4 js-question-card__explanation">
+            <label class="fw-bold mt-3">
                 正答
             </label>
             <div>
@@ -138,9 +138,12 @@ Args:
             confirmButton.addEventListener('click', () => {
                 const questionExplanation = document.querySelector('.js-question-card__explanation');
                 const aiCommentContainer = document.querySelector('.js-question-card__ai-comment-container');
+                const chatCommentContainer = document.querySelector('.js-question-detail__chat-comment-container');
+                const confirmButtonContainer = document.querySelector('.js-question-card__confirm-button-container');
                 questionExplanation.classList.remove('d-none');
                 aiCommentContainer.classList.remove('d-none');
-                confirmButton.classList.add('d-none');
+                chatCommentContainer.classList.remove('d-none');
+                confirmButtonContainer.classList.add('d-none');
                 displayResultEffect();
             });
 

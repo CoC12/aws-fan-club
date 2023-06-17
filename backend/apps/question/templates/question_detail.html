@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'projects/question_card.html' with card_title=card_title question=question %}
+    {% include 'projects/question_card.html' with card_title=question_card_title question=question %}
     <div class="d-flex">
         <div class="mx-4 my-3">
             {% include 'components/button.html' with button=previous_page_button %}
@@ -14,5 +14,8 @@
         <div class="mx-4 my-3 ms-auto">
             {% include 'components/button.html' with button=next_page_button %}
         </div>
+    </div>
+    <div class="d-none js-question-detail__chat-comment-container">
+        {% include 'projects/question_comment_card.html' with card_title=question_comment_card_title question=question %}
     </div>
 {% endblock %}

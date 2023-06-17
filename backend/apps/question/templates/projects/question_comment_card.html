@@ -1,0 +1,43 @@
+{% extends 'components/card_base.html' %}
+{% comment %}
+問題のコメントのカード表示
+
+Template Path:
+    projects/question_comment_card.html
+
+Args:
+    card_title (str): カードのタイトル
+{% endcomment %}
+
+{% block card_body %}
+    <div class="p-4">
+        {% for comment in question.get_chat_comments %}
+            <div class="d-flex mt-2">
+                <div>
+                    {% include 'components/avatar.html' with avatar=avatar %}
+                </div>
+                <div class="ms-2">
+                    <div>
+                        {{ comment.created_by }}
+                        <span class="text-muted ms-1 p-question-comment-card__time-diff" title="{{ comment.created_at }}">
+                            {{ comment.created_at_time_diff_str }}
+                        </span>
+                    </div>
+                    <div>
+                        {{ comment.comment|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="m-2 text-center">
+                表示するコメントがありません
+            </div>
+        {% endfor %}
+    </div>
+
+    <style>
+        .p-question-comment-card__time-diff {
+            font-size: 0.9rem;
+        }
+    </style>
+{% endblock %}
