@@ -1,2 +1,3 @@
 from .create_question import CreateQuestion
 from .create_question_ai_comment import CreateQuestionAiComment
+from .register_question_answer import RegisterQuestionAnswer

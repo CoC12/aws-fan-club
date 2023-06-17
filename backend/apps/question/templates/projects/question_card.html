@@ -27,19 +27,23 @@ Args:
         </div>
         {% comment %} 選択肢 {% endcomment %}
         <div>
-            {% for choice in question.choices.all %}
-                <div class="m-3 form-check p-question-card__choice-container">
-                    <input
-                        type="checkbox"
-                        id="id-question-card__choice-check-{{ choice.pk }}"
-                        class="form-check-input p-question-card__choice-check js-question-card__choice-check"
-                        data-is-answer="{{ choice.is_answer }}"
-                    >
-                    <label for="id-question-card__choice-check-{{ choice.pk }}">
-                        {{ choice.number }}. {{ choice.choice_text }}
-                    </label>
-                </div>
-            {% endfor %}
+            <form class="js-question-card__choice-form">
+                {% for choice in question.choices.all %}
+                    <div class="m-3 form-check p-question-card__choice-container">
+                        <input
+                            id="id-question-card__choice-check-{{ choice.pk }}"
+                            class="form-check-input p-question-card__choice-check js-question-card__choice-check"
+                            type="checkbox"
+                            name="choice"
+                            value="{{ choice.pk }}"
+                            data-is-answer="{{ choice.is_answer }}"
+                        >
+                        <label for="id-question-card__choice-check-{{ choice.pk }}">
+                            {{ choice.number }}. {{ choice.choice_text }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </form>
         </div>
         {% comment %} 「決定」ボタン {% endcomment %}
         <div class="d-flex js-question-card__confirm-button-container">
@@ -133,6 +137,7 @@ Args:
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const questionContainer = document.querySelector('.js-question-card__container');
+            const questionId = questionContainer.dataset.questionId;
             // 解答ボタン
             const confirmButton = document.querySelector('.js-question-card__confirm-button');
             confirmButton.addEventListener('click', () => {
@@ -145,6 +150,7 @@ Args:
                 chatCommentContainer.classList.remove('d-none');
                 confirmButtonContainer.classList.add('d-none');
                 displayResultEffect();
+                sendResult(questionId);
             });
 
             // AIコメント生成ボタン
@@ -159,7 +165,6 @@ Args:
                     aiCommentElement.appendChild(aiCommentLoader);
 
                     // AIコメント生成リクエスト
-                    const questionId = questionContainer.dataset.questionId;
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                     const xhr = new XMLHttpRequest();
                     xhr.open('POST', `/api/questions/${questionId}/comments/ai/create/`, true);
@@ -210,5 +215,20 @@ Args:
             }
             return true;
         };
+
+        /**
+         * 解答の結果を送信する。
+          @param {str} 問題ID
+         */
+        const sendResult = (questionId) => {
+            const choiceForm = document.querySelector('.js-question-card__choice-form');
+            const formData = new FormData(choiceForm);
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `/api/questions/${questionId}/answers/`, true);
+            xhr.setRequestHeader('X-CSRFToken', csrfToken);
+            xhr.send(formData);
+        }
     </script>
 {% endblock %}
