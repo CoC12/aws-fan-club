@@ -4,11 +4,13 @@ from .views import (
     CreateQuestion,
     CreateQuestionAiComment,
     RegisterQuestionAnswer,
+    RegisterQuestionComment,
 )
 
 urlpatterns = [
     path('questions/create/', CreateQuestion.as_view(), name='create_question'),
-    path('questions/<int:pk>/answers/', RegisterQuestionAnswer.as_view(), name='create_question'),
+    path('questions/<int:pk>/answers/', RegisterQuestionAnswer.as_view(), name='register_question_answer'),
+    path('questions/<int:pk>/comments/', RegisterQuestionComment.as_view(), name='register_question_comment'),
     path(
         'questions/<int:pk>/comments/ai/create/',
         CreateQuestionAiComment.as_view(),

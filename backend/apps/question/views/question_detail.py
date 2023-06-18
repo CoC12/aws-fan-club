@@ -79,6 +79,19 @@ class QuestionDetail(BaseView):
                 link=reverse('question_detail', kwargs={'pk': next_question.pk}) if next_question else '',
                 disabled=next_question is None,
             ),
+            'comment_cancel_button': Button(
+                label='キャンセル',
+                secondary=True,
+                add_class=[
+                    'js-question-comment-card__comment-cancel-button',
+                ],
+            ),
+            'comment_confirm_button': Button(
+                label='コメント',
+                add_class=[
+                    'js-question-comment-card__comment-confirm-button',
+                ],
+            ),
             # TODO ユーザーに紐づいたアイコンにする
             'avatar': Avatar(
                 static_src='images/user-default.png',

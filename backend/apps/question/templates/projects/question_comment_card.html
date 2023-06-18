@@ -8,36 +8,172 @@ Template Path:
 Args:
     card_title (str): カードのタイトル
 {% endcomment %}
+{% load helpers %}
 
 {% block card_body %}
     <div class="p-4">
-        {% for comment in question.get_chat_comments %}
-            <div class="d-flex mt-2">
-                <div>
-                    {% include 'components/avatar.html' with avatar=avatar %}
-                </div>
-                <div class="ms-2">
-                    <div>
-                        {{ comment.created_by }}
-                        <span class="text-muted ms-1 p-question-comment-card__time-diff" title="{{ comment.created_at }}">
-                            {{ comment.created_at_time_diff_str }}
-                        </span>
+        {% comment %} コメント入力欄 {% endcomment %}
+        <div class="d-flex mt-2">
+            <div>
+                {% include 'components/avatar.html' with avatar=avatar %}
+            </div>
+            {% settings 'LOGIN_URL' as login_url %}
+            <div
+                class="ms-2 w-100 p-question-comment-card__comment-input-container js-question-comment-card__comment-input-container"
+                data-is-authenticated="{{ request.user.is_authenticated }}"
+                data-login-url="{{ login_url }}?{% add_param request 'next' request.get_full_path %}"
+            >
+                <div class="w-100 text-muted">
+                    <div class="p-1 p-question-comment-card__comment-input-inactive js-question-comment-card__comment-input-inactive">
+                        コメントする
                     </div>
-                    <div>
-                        {{ comment.comment|linebreaks }}
+                    <div class="p-1 p-question-comment-card__comment-input-active">
+                        <form class="js-question-comment-card__comment-form">
+                            <textarea
+                                class="d-block w-100 p-0 border-0 p-question-comment-card__comment-input-element js-question-comment-card__comment-input-element"
+                                name="comment"
+                                placeholder="コメントする"
+                                maxlength="1000"
+                            ></textarea>
+                        <form>
+                    </div>
+                </div>
+                <div class="p-question-comment-card__comment-input-border"></div>
+                <div class="p-question-comment-card__comment-input-active">
+                    <div class="d-flex m-2">
+                        <div class="ms-auto">
+                            {% include 'components/button.html' with button=comment_cancel_button %}
+                        </div>
+                        <div class="ms-3">
+                            {% include 'components/button.html' with button=comment_confirm_button %}
+                        </div>
                     </div>
                 </div>
             </div>
-        {% empty %}
-            <div class="m-2 text-center">
-                表示するコメントがありません
-            </div>
-        {% endfor %}
+        </div>
+        {% comment %} コメント一覧 {% endcomment %}
+        <div class="mt-4">
+            {% for comment in question.get_chat_comments %}
+                <div class="d-flex mt-2">
+                    <div>
+                        {% include 'components/avatar.html' with avatar=avatar %}
+                    </div>
+                    <div class="ms-2">
+                        <div>
+                            {{ comment.created_by }}
+                            <span class="text-muted ms-1 p-question-comment-card__time-diff" title="{{ comment.created_at }}">
+                                {{ comment.created_at_time_diff_str }}
+                            </span>
+                        </div>
+                        <div>
+                            {{ comment.comment|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="m-2 text-center">
+                    表示するコメントがありません
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
     <style>
+        /* コメント入力欄の表示・非表示の切り替え */
+        .p-question-comment-card__comment-input-container .p-question-comment-card__comment-input-inactive,
+        .p-question-comment-card__comment-input-container.active .p-question-comment-card__comment-input-active {
+            display: block;
+        }
+        .p-question-comment-card__comment-input-container .p-question-comment-card__comment-input-active,
+        .p-question-comment-card__comment-input-container.active .p-question-comment-card__comment-input-inactive {
+            display: none;
+        }
+        /* 非アクティブなコメント入力欄 */
+        .p-question-comment-card__comment-input-inactive {
+            cursor: text;
+        }
+        /* コメント入力テキストエリア */
+        .p-question-comment-card__comment-input-element {
+            outline: none;
+            resize: none;
+        }
+        /* コメント入力欄のボーダー */
+        .p-question-comment-card__comment-input-border {
+            height: 1px;
+            border-bottom: 1px solid #dee2e6;
+            transition: border-color 0.1s cubic-bezier(0.4, 0, 1, 1);
+        }
+        .p-question-comment-card__comment-input-container.active .p-question-comment-card__comment-input-border {
+            border-color: #0073bb;
+        }
+        /* コメント一覧の「XX前」のスタイル */
         .p-question-comment-card__time-diff {
             font-size: 0.9rem;
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const commentInputContainer = document.querySelector('.js-question-comment-card__comment-input-container');
+            const commentInput = document.querySelector('.js-question-comment-card__comment-input-element');
+            // 入力要素コンテナ
+            const commentInputInactive = document.querySelector('.js-question-comment-card__comment-input-inactive');
+            commentInputInactive.addEventListener('click', () => {
+                const isAuthenticated = commentInputContainer.dataset.isAuthenticated;
+                if (isAuthenticated === 'False') {
+                    const loginUrl = commentInputContainer.dataset.loginUrl;
+                    location.href = loginUrl;
+                    return
+                }
+                commentInputContainer.classList.add('active');
+                commentInput.focus();
+                updateHeight(commentInput, 24);
+            });
+            // コメント送信ボタン
+            const commentConfirmButton = document.querySelector('.js-question-comment-card__comment-confirm-button');
+            commentConfirmButton.addEventListener('click', () => {
+                const commentForm = document.querySelector('.js-question-comment-card__comment-form');
+                const formData = new FormData(commentForm);
+
+                const questionContainer = document.querySelector('.js-question-card__container');
+                const questionId = questionContainer.dataset.questionId;
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `/api/questions/${questionId}/comments/`, true);
+                xhr.setRequestHeader('X-CSRFToken', csrfToken);
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        // TODO コメント送信後の非同期更新
+                        commentInputContainer.classList.remove('active');
+                        commentInput.value = '';
+                    } else {
+                        // TODO コメント送信後のエラー処理
+                    }
+                };
+                xhr.send(formData);
+            });
+            // コメントキャンセルボタン
+            const commentCancelButton = document.querySelector('.js-question-comment-card__comment-cancel-button');
+            commentCancelButton.addEventListener('click', () => {
+                commentInputContainer.classList.remove('active');
+                commentInput.value = '';
+            });
+            // 入力要素の高さ自動調整
+            commentInput.addEventListener('input', () => {
+                updateHeight(commentInput, 24);
+            });
+        });
+
+
+        /**
+         * 要素の高さをスクロール部分も含めた高さに更新する。
+         * @param {Element} element 高さを更新する要素
+         * @param {integer} defaultHeight デフォルトの高さ
+         */
+        const updateHeight = (element, defaultHeight) => {
+            // 最初にデフォルトの高さにすことで、テキストが削除されたときにtextareaの高さが縮むようにする。
+            element.style.height = `${defaultHeight}px`;
+            element.style.height = `${element.scrollHeight}px`;
+        }
+    </script>
 {% endblock %}
