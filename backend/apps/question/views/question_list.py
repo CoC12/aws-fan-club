@@ -35,8 +35,9 @@ class QuestionList(BaseView):
             'question_list_table': Table(
                 page_obj=page_obj,
                 page_range=page_range,
-                headers=['ID', '問題文', '作成者', '作成日時', '最終更新日時'],
-                html_safe_headers=['問題文'],
+                headers=['ID', '問題文', 'コメント数', '作成者', '作成日時', '最終更新日時'],
+                html_safe_headers=['問題文', 'コメント数'],
+                body_only_headers=['コメント数'],
                 empty_text='表示するデータがありません。',
             ),
         })
@@ -56,6 +57,7 @@ class QuestionList(BaseView):
                 data={
                     'ID': str(question.pk),
                     '問題文': self._build_question_text_html(question),
+                    'コメント数': self._build_comment_count_html(question),
                     '作成者': question.created_by,
                     '作成日時': to_human_readable_datetime(question.created_at),
                     '最終更新日時': to_human_readable_datetime(question.updated_at),
@@ -78,6 +80,30 @@ class QuestionList(BaseView):
         if badge is None:
             return question.text
         return f'{badge}{question.text}'
+
+    def _build_comment_count_html(self, question: Question) -> str:
+        """
+        コメント数のHTML文字列を取得する。
+
+        Args:
+            question (Question): Question オブジェクト
+
+        Returns:
+            str: コメント数のHTML文字列
+        """
+        count = len(question.get_chat_comments())
+        if count == 0:
+            return ''
+        return f"""
+            <div class="d-flex align-items-center">
+                <span class="material-symbols-outlined fs-5">
+                    chat_bubble
+                </span>
+                <span class="ms-1">
+                    {count}
+                </span>
+            </div>
+        """
 
     def _get_breadcrumb_items(self) -> list[BreadcrumbItem]:
         """
