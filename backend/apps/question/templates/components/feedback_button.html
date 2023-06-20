@@ -1,0 +1,129 @@
+{% comment %}
+フィードバックボタンコンポーネント
+
+Template Path:
+    components/feedback_button.html
+
+Args:
+    question (Question): Question モデル
+{% endcomment %}
+{% load helpers %}
+
+<form class="js-feedback-button__feedback-form">
+    {% settings 'LOGIN_URL' as login_url %}
+    <div
+        class="d-flex js-feedback-button__feedback-container"
+        data-is-authenticated="{{ request.user.is_authenticated }}"
+        data-login-url="{{ login_url }}?{% add_param request 'next' request.get_full_path %}"
+    >
+        <input
+            id="feedback-good"
+            class="d-none c-feedback-button__radio"
+            type="radio"
+            name="feedback"
+            value="1"
+            autocomplete="off"
+            {% if question_feedback == 1 %}
+                checked="checked"
+            {% endif %}
+        >
+        <label class="d-block px-3 py-1 border c-feedback-button__thumb-up" for="feedback-good" role="button">
+            <div class="d-flex align-items-center">
+                <span class="material-symbols-outlined c-feedback-button__thumb-icon-inactive">
+                    thumb_up
+                </span>
+                <span class="material-icons c-feedback-button__thumb-icon-active">
+                    thumb_up
+                </span>
+                <span class="ms-2 js-feedback-button__feedback-count-good">
+                    {{ question.get_feedbacks.good }}
+                </span>
+            </div>
+        </label>
+
+        <input
+            id="feedback-bad"
+            class="d-none c-feedback-button__radio"
+            type="radio"
+            name="feedback"
+            value="0"
+            autocomplete="off"
+            {% if question_feedback == 0 %}
+                checked="checked"
+            {% endif %}
+        >
+        <label class="d-block px-3 py-1 border c-feedback-button__thumb-down" for="feedback-bad" role="button">
+            <div class="d-flex align-items-center">
+                <span class="material-symbols-outlined c-feedback-button__thumb-icon-inactive">
+                    thumb_down
+                </span>
+                <span class="material-icons c-feedback-button__thumb-icon-active">
+                    thumb_down
+                </span>
+                <span class="ms-2 js-feedback-button__feedback-count-bad">
+                    {{ question.get_feedbacks.bad }}
+                </span>
+            </div>
+        </label>
+    </div>
+</form>
+
+<style>
+    .c-feedback-button__thumb-up,
+    .c-feedback-button__thumb-down {
+        background-color: #f2f3f3;
+    }
+    .c-feedback-button__thumb-up:hover,
+    .c-feedback-button__thumb-down:hover {
+        background-color: #dee2e6;
+    }
+    .c-feedback-button__thumb-up {
+        border-radius: 50rem 0 0 50rem;
+    }
+    .c-feedback-button__thumb-down {
+        border-radius: 0 50rem 50rem 0;
+    }
+    .c-feedback-button__radio:checked + label .c-feedback-button__thumb-icon-inactive {
+        display: none;
+    }
+    .c-feedback-button__radio:not(:checked) + label .c-feedback-button__thumb-icon-active {
+        display: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const questionContainer = document.querySelector('.js-question-card__container');
+        const questionId = questionContainer.dataset.questionId;
+        const feedbackForm = document.querySelector('.js-feedback-button__feedback-form');
+        // フィードバックエリア
+        const feedbackContainer = document.querySelector('.js-feedback-button__feedback-container');
+        feedbackContainer.addEventListener('click', (event) => {
+            const isAuthenticated = feedbackContainer.dataset.isAuthenticated;
+            if (isAuthenticated === 'False') {
+                event.preventDefault();
+                const loginUrl = feedbackContainer.dataset.loginUrl;
+                location.href = loginUrl;
+            }
+        });
+        feedbackContainer.addEventListener('change', () => {
+            const formData = new FormData(feedbackForm);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `/api/questions/${questionId}/feedback/`, true);
+            xhr.setRequestHeader('X-CSRFToken', csrfToken);
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const feedbackCountData = JSON.parse(xhr.responseText);
+                    const feedbackCountGood = document.querySelector('.js-feedback-button__feedback-count-good');
+                    const feedbackCountBad = document.querySelector('.js-feedback-button__feedback-count-bad');
+                    feedbackCountGood.innerText = feedbackCountData.good;
+                    feedbackCountBad.innerText = feedbackCountData.bad;
+                } else {
+                    // TODO エラー処理
+                }
+            };
+            xhr.send(formData);
+        });
+    });
+</script>

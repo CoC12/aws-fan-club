@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import Count, QuerySet
 from django.utils import timezone
 
 from apps.common.dataclass import Badge
@@ -51,6 +51,28 @@ class Question(TimestampUserMixin):
         """
         return self.comments.order_by('-created_at')
 
+    def get_ai_comment(self) -> Comment | None:
+        """
+        問題のAIコメントを取得する。
+
+        Returns:
+            Comment | None: Comment オブジェクト
+        """
+        comment_qs = self.get_comments()
+        ai_comment = comment_qs.filter(comment_type=Comment.CommentType.AI_COMMENT).first()
+        return ai_comment
+
+    def get_chat_comments(self) -> QuerySet[Comment]:
+        """
+        問題のチャットコメントを取得する。
+
+        Returns:
+            QuerySet[Comment]: コメントのQuerySet
+        """
+        comment_qs = self.get_comments()
+        chat_comments = comment_qs.filter(comment_type=Comment.CommentType.CHAT_COMMENT).order_by('-created_at')
+        return chat_comments
+
     def get_badge(self, user: User | AnonymousUser) -> Badge | None:
         """
         問題のバッジを取得する。
@@ -75,24 +97,39 @@ class Question(TimestampUserMixin):
             )
         return None
 
-    def get_ai_comment(self) -> Comment | None:
+    def get_feedbacks(self) -> dict[str, int]:
         """
-        問題のAIコメントを取得する。
+        問題のフィードバックの集計を取得する。
 
         Returns:
-            Comment | None: Comment オブジェクト
+            dict[str, int]: 問題のフィードバックの集計
+                {
+                    'good': 12,
+                    'bad': 3,
+                }
         """
-        comment_qs = self.get_comments()
-        ai_comment = comment_qs.filter(comment_type=Comment.CommentType.AI_COMMENT).first()
-        return ai_comment
+        feedback_dict = {
+            'good': 0,
+            'bad': 0,
+        }
 
-    def get_chat_comments(self) -> QuerySet[Comment]:
+        feedback_by_rating = self.feedbacks.values('rating').annotate(count=Count('id'))
+        for feedback in feedback_by_rating:
+            if feedback['rating'] == 1:
+                feedback_dict['good'] = feedback['count']
+            elif feedback['rating'] == 0:
+                feedback_dict['bad'] = feedback['count']
+        return feedback_dict
+
+    def get_user_feedback(self, user: User | AnonymousUser) -> int | None:
         """
-        問題のチャットコメントを取得する。
+        ユーザーに紐づく、問題のフィードバックを取得する。
 
         Returns:
-            QuerySet[Comment]: コメントのQuerySet
+            int | None: 問題のフィードバック 0 or 1 or None
         """
-        comment_qs = self.get_comments()
-        chat_comments = comment_qs.filter(comment_type=Comment.CommentType.CHAT_COMMENT).order_by('-created_at')
-        return chat_comments
+        if user.is_authenticated:
+            feedback = self.feedbacks.filter(user=user).first()
+            if feedback:
+                return feedback.rating
+        return None

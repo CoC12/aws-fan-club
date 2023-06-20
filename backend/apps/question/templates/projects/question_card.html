@@ -10,6 +10,17 @@ Args:
     question (Question): Question モデル
 {% endcomment %}
 
+{% block card_title %}
+    <div class="d-flex">
+        <div class="mb-3">
+            {{ card_title }}
+        </div>
+        <div class="ms-auto">
+            {% include 'components/feedback_button.html' with question=question %}
+        </div>
+    </div>
+{% endblock %}
+
 {% block card_header %}
     <div class="d-flex">
         <span class="ms-auto">

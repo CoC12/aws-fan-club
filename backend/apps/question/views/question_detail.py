@@ -54,6 +54,7 @@ class QuestionDetail(BaseView):
             'question_comment_card_title': 'コメント',
             'question': current_question,
             'question_badge': current_question.get_badge(self.request.user),
+            'question_feedback': current_question.get_user_feedback(self.request.user),
             'confirm_button': Button(
                 label='決定',
                 add_class=[
