@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% load helpers %}
+
+{% block title %}
+    {% site_title 'マイページ' %}
+{% endblock %}
+
+{% block content %}
+    {% include 'components/card_form.html' with card_title=user_setting_card_title fields=user_setting_fields %}
+{% endblock %}

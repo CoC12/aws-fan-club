@@ -12,3 +12,10 @@ class SidebarConfig:
             'icon': 'edit_document',
         },
     ]
+    my_page: list[SidebarItem] = [
+        {
+            'label': 'アカウント設定',
+            'view_name': 'user:my_page',
+            'icon': 'manage_accounts',
+        },
+    ]

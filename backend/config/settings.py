@@ -197,4 +197,4 @@ HEADER_CONFIG = {
     ],
     'SHOW_USER_MENU': True,
 }
-MYPAGE_VIEW_NAME = None
+MYPAGE_VIEW_NAME = 'user:my_page'
