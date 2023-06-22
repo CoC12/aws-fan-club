@@ -6,5 +6,11 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'components/card_form.html' with card_title=user_setting_card_title fields=user_setting_fields %}
+    <form id="id-mypage__user-setting-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% include 'components/card_form.html' with card_title=user_setting_card_title fields=user_setting_fields %}
+        <div class="d-flex justify-content-end mt-4 mb-5">
+            {% include 'components/button.html' with button=submit_button %}
+        </div>
+    </form>
 {% endblock %}

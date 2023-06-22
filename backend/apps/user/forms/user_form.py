@@ -15,16 +15,18 @@ class UserForm(BaseForm[User]):
         """
         model = User
         fields = (
-            'id',
+            'profile_image',
+            'account_id',
             'username',
             'email',
+            'bio',
         )
         help_texts = {
             'username': '',
         }
 
     WIDGET_ATTRS = {
-        'id': {
+        'account_id': {
             'readonly': True,
         },
         'username': {
@@ -35,15 +37,13 @@ class UserForm(BaseForm[User]):
         },
     }
 
-    id = forms.IntegerField(
-        label='ユーザーID',
-    )
-
     # 「ユーザー設定」エリアに表示するフィールドのフィールド名
     USER_SETTING_FIELDS = [
-        'id',
+        'profile_image',
+        'account_id',
         'username',
         'email',
+        'bio',
     ]
 
     def get_user_setting_fields(self) -> list[forms.BoundField]:
