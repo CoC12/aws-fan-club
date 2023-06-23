@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% load helpers %}
+
+{% block title %}
+    {% site_title page_title %}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% comment %} ユーザー詳細: 左エリア {% endcomment %}
+        <div class="col-4">
+            <div class="p-4 bg-white page-user-detail__user-detail">
+                <div class="d-flex justify-content-center">
+                    {% include 'components/avatar.html' with avatar=user.get_avatar %}
+                </div>
+                <div class="mt-2 text-center fs-3">{{ user.username }}</div>
+                <div class="mt-2 text-center">@{{ user.account_id }}</div>
+                {% comment %} ボーダー {% endcomment %}
+                <div class="mt-4 page-user-detail__user-detail-border"></div>
+                <div class="mt-4 mx-4 row justify-content-center text-muted fs-6">
+                    <div class="col-4 text-center">
+                        {{ count_list.created_question }}<br>
+                        投稿
+                    </div>
+                    <div class="col-4 text-center">
+                        {{ count_list.solved_question }}<br>
+                        解答
+                    </div>
+                    <div class="col-4 text-center">
+                        {{ count_list.comment }}<br>
+                        コメント
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% comment %} ユーザー詳細: 右エリア {% endcomment %}
+        <div class="col-8">
+            {% include 'components/card_table.html' with card_title=good_feedback_question_card_title table=good_feedback_question_table %}
+        </div>
+    </div>
+
+    <style>
+        .page-user-detail__user-detail {
+            border-radius: 8px;
+        }
+        .page-user-detail__user-detail-border {
+            height: 1px;
+            border-bottom: 1px solid #dee2e6;
+        }
+    </style>
+{% endblock %}

@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import QuerySet
 
+from apps.common.dataclass import Avatar
 from apps.common.models import TimestampUserMixin
 from apps.common.validators import CharsValidatorBuilder, ValidatorPattern
 
@@ -79,3 +80,17 @@ class User(AbstractUser, TimestampUserMixin):
         return self.histories.filter(
             question_id=question_id,
         )
+
+    def get_avatar(self, size: Avatar.Size = Avatar.Size.MEDIUM) -> Avatar:
+        """
+        ユーザーのアバター画像を取得する。
+
+        Returns:
+            Avatar: ユーザーのアバター
+        """
+        avatar = Avatar(
+            absolute_src=self.profile_image.url,
+            alt='user icon',
+            size=size,
+        )
+        return avatar
