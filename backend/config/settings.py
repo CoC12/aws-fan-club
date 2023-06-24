@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'login_required.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -171,6 +172,15 @@ LOGGING = {
         },
     },
 }
+
+# django-login-required-middleware
+LOGIN_REQUIRED_IGNORE_PATHS: list[str] = [
+]
+LOGIN_REQUIRED_IGNORE_VIEW_NAMES: list[str] = [
+    'user:login',
+    'top_page',
+    'question_list',
+]
 
 # boto3
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
