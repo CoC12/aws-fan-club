@@ -1,0 +1,80 @@
+<input
+    class="d-block w-profile-image-widget__file-input js-profile-image-widget__file-input"
+    type="{{ widget.type }}"
+    name="{{ widget.name }}"
+    {% include "django/forms/widgets/attrs.html" %}
+>
+
+<div class="d-flex justify-content-center align-items-center position-relative w-profile-image-widget__add-photo-container">
+    <div class="position-absolute">
+        {% include 'components/avatar.html' with avatar=avatar %}
+    </div>
+    <div
+        class="d-flex justify-content-center align-items-center position-relative w-profile-image-widget__add-photo-button js-profile-image-widget__add-photo-button"
+        role="button"
+    >
+        <span class="material-symbols-outlined fs-5">
+            add_a_photo
+        </span>
+    </div>
+</div>
+
+<style>
+    .w-profile-image-widget__file-input {
+        width: 0px;
+        height: 0px;
+    }
+
+    .w-profile-image-widget__add-photo-container {
+        height: 7.5rem;
+        width: 7.5rem;
+    }
+
+    .w-profile-image-widget__add-photo-button {
+        height: 3rem;
+        width: 3rem;
+        background: #00000059;
+        color: #f8f9fa;
+        border-radius: 50%;
+        transition: background .2s linear;
+    }
+    .w-profile-image-widget__add-photo-button:hover {
+        background: #57575759;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addPhotoButton = document.querySelector('.js-profile-image-widget__add-photo-button');
+        const profileImageInput = document.querySelector('.js-profile-image-widget__file-input');
+
+        // 画像アイコン クリック時
+        addPhotoButton.addEventListener('click', () => {
+            profileImageInput.click();
+        });
+
+        // 画像選択時にプレビュー画像の更新
+        const previewImageElement = document.querySelector('.js-profile-image-widget__preview-image');
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            updateImagePreview(previewImageElement, reader.result);
+        });
+        profileImageInput.addEventListener('change', () => {
+            // ファイルが選択されなかったらスキップ
+            if (profileImageInput.files.length === 0) {
+                return;
+            }
+            reader.readAsDataURL(profileImageInput.files[0]);
+        });
+    });
+
+    /**
+     * プレビュー画像要素のsrc属性を更新する。
+     *
+     * @param {HTMLImageElement} previewImageElement プレビュー画像要素
+     * @param {string} imageSrc 画像のsrc属性値
+     */
+    const updateImagePreview = (previewImageElement, imageSrc) => {
+        previewImageElement.src = imageSrc;
+    };
+</script>

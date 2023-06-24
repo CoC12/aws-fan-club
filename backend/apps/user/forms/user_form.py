@@ -1,6 +1,7 @@
 from django import forms
 
 from apps.common.forms import BaseForm
+from apps.user.widgets import ProfileImageWidget
 
 from ..models import User
 
@@ -23,6 +24,9 @@ class UserForm(BaseForm[User]):
         )
         help_texts = {
             'username': '',
+        }
+        widgets = {
+            'profile_image': ProfileImageWidget,
         }
 
     WIDGET_ATTRS = {
