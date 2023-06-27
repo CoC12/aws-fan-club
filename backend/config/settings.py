@@ -177,6 +177,7 @@ LOGGING = {
 LOGIN_REQUIRED_IGNORE_PATHS: list[str] = [
 ]
 LOGIN_REQUIRED_IGNORE_VIEW_NAMES: list[str] = [
+    'create_question',
     'user:login',
     'top_page',
     'question_list',
