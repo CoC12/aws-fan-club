@@ -15,7 +15,7 @@ Args:
         {% comment %} コメント入力欄 {% endcomment %}
         <div class="d-flex mt-2">
             <div>
-                {% include 'components/avatar.html' with avatar=avatar %}
+                {% include 'components/avatar.html' with avatar=request.user.get_small_avatar %}
             </div>
             {% settings 'LOGIN_URL' as login_url %}
             <div

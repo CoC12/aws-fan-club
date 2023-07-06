@@ -12,8 +12,7 @@ Args:
 {% for comment in comments %}
     <div class="d-flex mt-2">
         <div>
-            {% comment %} TODO コメントした人のアバター {% endcomment %}
-            {% include 'components/avatar.html' with avatar=avatar %}
+            {% include 'components/avatar.html' with avatar=comment.commented_by.get_small_avatar %}
         </div>
         <div class="ms-2">
             <div>

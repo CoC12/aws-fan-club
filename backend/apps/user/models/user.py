@@ -94,3 +94,13 @@ class User(AbstractUser, TimestampUserMixin):
             size=size,
         )
         return avatar
+
+    def get_small_avatar(self) -> Avatar:
+        """
+        ユーザーのアバター画像（小）を取得する。
+
+        Returns:
+            Avatar: ユーザーのアバター（小）
+        """
+        small_avatar = self.get_avatar(Avatar.Size.SMALL)
+        return small_avatar

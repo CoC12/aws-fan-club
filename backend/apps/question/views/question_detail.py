@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 
-from apps.common.dataclass import Avatar, Button
+from apps.common.dataclass import Button
 from apps.common.views import BaseView, BreadcrumbItem
 from apps.question.models import Question
 from config.sidebar_config import SidebarConfig
@@ -92,11 +92,6 @@ class QuestionDetail(BaseView):
                 add_class=[
                     'js-question-comment-card__comment-confirm-button',
                 ],
-            ),
-            # TODO ユーザーに紐づいたアイコンにする
-            'avatar': Avatar(
-                static_src='images/user-default.png',
-                alt='user icon',
             ),
         })
         return context

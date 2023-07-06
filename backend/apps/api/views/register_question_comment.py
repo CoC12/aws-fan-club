@@ -5,7 +5,6 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.template.loader import render_to_string
 from django.views.generic import View
 
-from apps.common.dataclass import Avatar
 from apps.question.models import Comment, Question
 
 
@@ -32,11 +31,6 @@ class RegisterQuestionComment(View):
                 'components/comment_list.html',
                 {
                     'comments': question.get_chat_comments(),
-                    # TODO ユーザーに紐づいたアイコンにする
-                    'avatar': Avatar(
-                        static_src='images/user-default.png',
-                        alt='user icon',
-                    ),
                 },
             ),
         })
