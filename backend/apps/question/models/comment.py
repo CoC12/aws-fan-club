@@ -1,6 +1,7 @@
 from django.db import models
 
 from apps.common.models import TimestampUserMixin
+from apps.user.models import User
 
 
 class Comment(TimestampUserMixin):
@@ -40,4 +41,9 @@ class Comment(TimestampUserMixin):
     comment_type = models.IntegerField(
         'コメント種別',
         choices=CommentType.choices,
+    )
+    commented_by = models.ForeignKey(
+        User,
+        verbose_name='コメント者',
+        on_delete=models.CASCADE,
     )
