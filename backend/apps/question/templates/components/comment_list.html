@@ -16,7 +16,9 @@ Args:
         </div>
         <div class="ms-2">
             <div>
-                {{ comment.commented_by.username }}
+                <a href={% url 'user:user_detail' comment.commented_by.account_id %} class="text-dark">
+                    {{ comment.commented_by.username }}
+                </a>
                 <span class="text-muted ms-1 c-comment-list__time-diff" title="{{ comment.created_at }}">
                     {{ comment.created_at_time_diff_str }}
                 </span>
