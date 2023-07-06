@@ -17,7 +17,7 @@ Args:
         </div>
         <div class="ms-2">
             <div>
-                {{ comment.created_by }}
+                {{ comment.commented_by.username }}
                 <span class="text-muted ms-1 c-comment-list__time-diff" title="{{ comment.created_at }}">
                     {{ comment.created_at_time_diff_str }}
                 </span>

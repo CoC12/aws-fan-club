@@ -39,8 +39,7 @@ class UserDetail(BaseView):
                 # TODO: 投稿機能作成後に対応
                 'created_question': 0,
                 'solved_question': History.objects.filter(user=user).count(),
-                # TODO: Comment と User の紐づけをしたときにSQL修正
-                'comment': Comment.objects.filter(created_by=user.username).count(),
+                'comment': Comment.objects.filter(commented_by=user).count(),
             },
             'good_feedback_question_card_title': 'いいね した問題',
             'good_feedback_question_table': Table(

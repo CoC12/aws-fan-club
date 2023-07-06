@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 
 from apps.question.models import Comment, Question
+from apps.user.models import User
 from services import OpenaiRequestBuilder
 
 
@@ -38,11 +39,11 @@ class CreateQuestionAiComment(View):
             question (Question): 問題モデル
             comment (str): AIコメント
         """
-        created_by = 'ChatGPT'
+        chat_gpt_user = User.objects.get(username='ChatGPT')
 
         Comment.objects.create(
             question=question,
             comment=comment,
             comment_type=Comment.CommentType.AI_COMMENT,
-            created_by=created_by,
+            commented_by=chat_gpt_user,
         )

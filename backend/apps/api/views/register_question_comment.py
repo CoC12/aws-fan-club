@@ -64,5 +64,5 @@ class RegisterQuestionComment(View):
             question=question,
             comment=comment,
             comment_type=Comment.CommentType.CHAT_COMMENT,
-            created_by=user.username,
+            commented_by=user,
         )
