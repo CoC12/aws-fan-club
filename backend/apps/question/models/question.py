@@ -24,6 +24,47 @@ class Question(TimestampUserMixin):
         verbose_name = '問題'
         verbose_name_plural = '問題一覧'
 
+    class Category(models.IntegerChoices):
+        """
+        カテゴリー
+        """
+        # AWSクラウドの概念
+        AWS_ADVANTAGES = (1, 'AWSの長所・利点')
+        CLOUD_ARCHITECTURE_PRINCIPLES = (2, 'クラウドアーキテクチャの設計原理')
+        AWS_WELL_ARCHITECTED_FRAMEWORK = (3, 'AWS Well-Architected フレームワーク')
+        # AWSのセキュリティ
+        SHARED_RESPONSIBILITY_MODEL = (4, '責任共有モデル')
+        AWS_CLOUD_SECURITY = (5, 'AWSクラウドのセキュリティ')
+        IAM = (6, 'IAM')
+        SECURITY_GROUPS = (7, 'セキュリティグループ')
+        AWS_SHIELD_AND_WAF = (8, 'AWS Shield と AWS WAF')
+        AMAZON_INSPECTOR = (9, 'Amazon Inspector')
+        # AWSのテクノロジー
+        GLOBAL_INFRASTRUCTURE = (10, 'グローバルインフラストラクチャ')
+        # コンピューティングサービス
+        EC2 = (11, 'EC2')
+        ELB = (12, 'ELB')
+        AUTO_SCALING = (13, 'Auto Scaling')
+        AWS_LAMBDA = (14, 'AWS Lambda')
+        # ストレージサービス
+        EBS = (15, 'EBS')
+        S3 = (16, 'S3')
+        # ネットワークサービス
+        VPC = (17, 'VPC')
+        AMAZON_CLOUDFRONT = (18, 'Amazon CloudFront')
+        ROUTE_53 = (19, 'Route 53')
+        # データベースサービス
+        RDS = (20, 'RDS')
+        DYNAMODB = (21, 'DynamoDB')
+        # 管理サービス
+        AMAZON_CLOUDWATCH = (22, 'Amazon CloudWatch')
+        AWS_TRUSTED_ADVISOR = (23, 'AWS Trusted Advisor')
+        # 請求と料金
+        AWS_PRICING_MODEL = (24, 'AWS料金モデル')
+        BILLING_DASHBOARD = (25, '請求ダッシュボード')
+        MULTI_ACCOUNT_OPERATION = (26, 'マルチアカウントの運用')
+        AWS_SUPPORT_PLANS = (27, 'AWSのサポートプラン')
+
     text = models.TextField(
         verbose_name='問題文',
     )
@@ -31,6 +72,12 @@ class Question(TimestampUserMixin):
     explanation = models.TextField(
         verbose_name='解説',
         blank=True,
+    )
+
+    category = models.IntegerField(
+        verbose_name='カテゴリー',
+        choices=Category.choices,
+        null=True,
     )
 
     def get_choices(self) -> models.QuerySet[Choice]:

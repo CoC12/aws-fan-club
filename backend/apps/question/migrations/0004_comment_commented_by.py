@@ -33,6 +33,7 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('question', '0003_feedback_feedback_unique_question_user'),
+        ('user', '0004_user_account_id_user_bio_user_profile_image'),
     ]
 
     operations = [
