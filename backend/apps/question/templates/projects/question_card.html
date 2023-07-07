@@ -23,6 +23,9 @@ Args:
 
 {% block card_header %}
     <div class="d-flex">
+        <span class="text-secondary fs-6">
+            {{ question.get_category_display|default:'カテゴリ未設定'}}
+        </span>
         <span class="ms-auto">
             作成者: {{ question.created_by }}
         </span>

@@ -35,7 +35,7 @@ class QuestionList(BaseView):
             'question_list_table': Table(
                 page_obj=page_obj,
                 page_range=page_range,
-                headers=['ID', '問題文', 'コメント数', '作成者', '作成日時', '最終更新日時'],
+                headers=['ID', 'カテゴリ', '問題文', 'コメント数', '作成者', '作成日時', '最終更新日時'],
                 html_safe_headers=['問題文', 'コメント数'],
                 body_only_headers=['コメント数'],
                 empty_text='表示するデータがありません。',
@@ -56,6 +56,7 @@ class QuestionList(BaseView):
                 href=reverse('question_detail', kwargs={'pk': question.pk}),
                 data={
                     'ID': str(question.pk),
+                    'カテゴリ': question.get_category_display() or '未設定',
                     '問題文': self._build_question_text_html(question),
                     'コメント数': self._build_comment_count_html(question),
                     '作成者': question.created_by,
