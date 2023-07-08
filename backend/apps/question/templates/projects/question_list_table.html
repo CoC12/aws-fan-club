@@ -1,0 +1,35 @@
+{% extends 'components/card_table.html' %}
+{% comment %}
+問題一覧のカード表示テーブルコンポーネント
+
+Template Path:
+    projects/question_list_table.html
+
+Args:
+    card_title (str): カードのタイトル
+    table (common.dataclass.Table): Tableオブジェクト
+    search_radio_group (common.dataclass.RadioGroup): RadioGroup オブジェクト
+{% endcomment %}
+
+{% block card_header %}
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            {% include 'components/radio_group_tip.html' with radio_group=search_radio_group %}
+        </div>
+        <div>
+            {% include 'components/pagination.html' with page_obj=table.page_obj page_range=table.page_range %}
+        </div>
+    </div>
+
+    <script>
+        const searchRadioGroup = document.querySelector('.js-question-list-table__search_radio_group');
+        searchRadioGroup.addEventListener('change', () => {
+            const checkedValue = searchRadioGroup.querySelector('input:checked').value;
+            window.location.href = `?filter=${checkedValue}`;
+        });
+    </script>
+{% endblock %}
+
+{% block card_body %}
+    {% include 'components/table.html' with table=table %}
+{% endblock %}

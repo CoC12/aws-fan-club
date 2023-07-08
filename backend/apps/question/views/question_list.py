@@ -1,13 +1,27 @@
 import typing
+from collections.abc import Callable
+from dataclasses import dataclass
 
+from django.db.models import Q
 from django.urls import reverse, reverse_lazy
 
-from apps.common.dataclass import Row, Table
+from apps.common.dataclass import RadioButton, RadioGroup, Row, Table
 from apps.common.services import PaginationService
 from apps.common.utils import to_human_readable_datetime
 from apps.common.views import BaseView, BreadcrumbItem
 from apps.question.models import Question
+from apps.user.models import User
 from config.sidebar_config import SidebarConfig
+
+
+@dataclass
+class QuestionListFilter:
+    """
+    問題一覧検索フィルター
+    """
+    label: str
+    filter_query: Callable[[User], Q] = lambda user: Q()
+    exclude_query: Callable[[User], Q] = lambda user: Q()
 
 
 class QuestionList(BaseView):
@@ -17,6 +31,22 @@ class QuestionList(BaseView):
     template_name = 'question_list.html'
     sidebar_items = SidebarConfig.questions
 
+    available_filters = {
+        'all': QuestionListFilter('すべて'),
+        'unsolved': QuestionListFilter(
+            '未解答の問題',
+            exclude_query=lambda user: Q(history__user=user),
+        ),
+        'good': QuestionListFilter(
+            'いいねした問題',
+            filter_query=lambda user: Q(feedbacks__user=user, feedbacks__rating=1),
+        ),
+        'commented': QuestionListFilter(
+            'コメントした問題',
+            filter_query=lambda user: Q(comments__commented_by=user),
+        ),
+    }
+
     def get_context_data(self, **kwargs: typing.Any) -> dict[str, typing.Any]:
         """
         コンテキストデータを返す。
@@ -24,7 +54,11 @@ class QuestionList(BaseView):
         Returns:
             dict[str, typing.Any]: コンテキストデータ
         """
-        question_list = self._get_question_list()
+        filter_key = self.request.GET.get('filter')
+        if filter_key not in self.available_filters.keys():
+            filter_key = 'all'
+
+        question_list = self._get_question_list(filter_key=filter_key)
 
         pagination_service: PaginationService[Row] = PaginationService()
         current_page = pagination_service.get_current_page(self.request.GET)
@@ -41,16 +75,44 @@ class QuestionList(BaseView):
                 empty_text='表示するデータがありません。',
             ),
         })
+
+        if self.request.user.is_authenticated:
+            context.update({
+                'search_radio_group': RadioGroup(
+                    name='search_radio_group',
+                    add_class=['js-question-list-table__search_radio_group'],
+                    radio_button_list=[
+                        RadioButton(
+                            html_id=f'id-question-list__search-radio-{key}',
+                            value=key,
+                            label=question_filter.label,
+                            selected=(filter_key == key),
+                        ) for key, question_filter in self.available_filters.items()
+                    ],
+                ),
+            })
         return context
 
-    def _get_question_list(self) -> list[Row]:
+    def _get_question_list(self, filter_key: str) -> list[Row]:
         """
         テーブル表示用の問題一覧を返す。
+
+        Args:
+            filter_key (str): フィルタするキー
 
         Returns:
             list[Row]: テーブル表示用の問題一覧
         """
-        question_qs = Question.objects.order_by('-created_at')
+        filter_query = Q()
+        exclude_query = Q()
+
+        user = self.request.user
+        if user.is_authenticated:
+            question_filter = self.available_filters[filter_key]
+            filter_query = question_filter.filter_query(user)
+            exclude_query = question_filter.exclude_query(user)
+
+        question_qs = Question.objects.filter(filter_query).exclude(exclude_query).distinct('pk').order_by('-pk')
         question_list = [
             Row(
                 href=reverse('question_detail', kwargs={'pk': question.pk}),
