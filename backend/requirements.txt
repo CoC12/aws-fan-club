@@ -1,19 +1,19 @@
-Django==4.1.5
+Django==4.2.3
 djangorestframework==3.14.0
 gunicorn==20.1.0
-psycopg2-binary==2.9.5
+psycopg2-binary==2.9.6
 
-drf-spectacular==0.25.1
-django-environ==0.9.0
+drf-spectacular==0.26.3
+django-environ==0.10.0
 
-django-stubs[compatible-mypy]==1.15.0
-django-stubs-ext==0.7.0
+django-stubs[compatible-mypy]==4.2.3
+django-stubs-ext==4.2.2
 
 # openai
 openai==0.27.8
 
 # boto3
-boto3==1.26.158
+boto3==1.28.2
 
 # django-storages
 django-storages==1.13.2
@@ -22,4 +22,4 @@ django-storages==1.13.2
 django-login-required-middleware==0.9.0
 
 # Pillow
-Pillow==9.5.0
+Pillow==10.0.0
